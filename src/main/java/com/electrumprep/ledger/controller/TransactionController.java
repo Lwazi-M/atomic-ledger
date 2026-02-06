@@ -1,59 +1,21 @@
 package com.electrumprep.ledger.controller;
 
 import com.electrumprep.ledger.model.Transaction;
-import com.electrumprep.ledger.repository.TransactionRepository;
+import com.electrumprep.ledger.service.TransactionSwitch;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
-public class TransactionController {
+public class TransactionController {  // <--- NAME MATCHES FILE NOW
 
-    private final TransactionRepository repository;
+    private final TransactionSwitch transactionSwitch;
 
-    public TransactionController(TransactionRepository repository) {
-        this.repository = repository;
+    public TransactionController(TransactionSwitch transactionSwitch) {
+        this.transactionSwitch = transactionSwitch;
     }
 
-    // GET /api/transactions -> Show me the history
-    @GetMapping
-    public List<Transaction> getAllTransactions() {
-        return repository.findAll();
-    }
-
-    // POST /api/transactions -> Process a new payment
     @PostMapping
     public Transaction processTransaction(@RequestBody Transaction transaction) {
-
-        // -----------------------------------------------------------
-        // 1. THE MANUAL BOUNCER (Validation Logic)
-        // -----------------------------------------------------------
-
-        // Rule 1: No negative money allowed
-        // We convert to double just for the check to keep it simple
-        if (transaction.getAmount().doubleValue() < 0) {
-            throw new IllegalArgumentException("FRAUD ALERT: Cannot send negative money!");
-        }
-
-        // Rule 2: Only ZAR is allowed (Optional, but good practice)
-        if (!"ZAR".equals(transaction.getCurrency())) {
-            // We can uncomment this later if we want to enforce ZAR only
-            // throw new IllegalArgumentException("Only ZAR is supported.");
-        }
-
-        // -----------------------------------------------------------
-        // 2. PROCESSING
-        // -----------------------------------------------------------
-
-        // Stamp the time
-        transaction.setTimestamp(LocalDateTime.now());
-
-        // Set the status
-        transaction.setStatus("SUCCESS");
-
-        // Save to database
-        return repository.save(transaction);
+        return transactionSwitch.processAndRoute(transaction);
     }
 }

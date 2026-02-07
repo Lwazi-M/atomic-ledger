@@ -3,40 +3,57 @@ package com.electrumprep.ledger.service;
 import com.electrumprep.ledger.model.Transaction;
 import com.electrumprep.ledger.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Service
 public class TransactionSwitch {
 
     private final TransactionRepository repository;
+    private final CategorizationService aiService;
 
-    public TransactionSwitch(TransactionRepository repository) {
+    public TransactionSwitch(TransactionRepository repository, CategorizationService aiService) {
         this.repository = repository;
+        this.aiService = aiService;
     }
 
-    public Transaction processAndRoute(Transaction transaction) {
-        // 1. THE BOUNCER (Validation)
-        if (transaction.getAmount().doubleValue() < 0) {
+    public Transaction processAndRoute(Transaction txn) {
+        // 1. Validation Rule
+        if (txn.getAmount().compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("FRAUD ALERT: Cannot send negative money!");
         }
 
-        // 2. THE ROUTER (The "Switch" Logic)
-        String destination = determineBank(transaction.getSenderAccount());
+        // 2. Default Currency (Fixing the null issue)
+        txn.setCurrency("ZAR");
 
-        // Simulating the network call to the other bank
-        System.out.println(">>> SWITCHING TRANSACTION TO: " + destination);
+        // 3. Routing Logic
+        String targetBank;
+        String receiverPoolAccount;
 
-        // 3. FINAL PROCESSING
-        transaction.setStatus("SUCCESS - Sent to " + destination);
-        transaction.setTimestamp(LocalDateTime.now());
+        if (txn.getSenderAccount().startsWith("INV")) {
+            targetBank = "INVESTEC BANK";
+            receiverPoolAccount = "INV-POOL-888";
+        } else if (txn.getSenderAccount().startsWith("ABS")) {
+            targetBank = "ABSA BANK";
+            receiverPoolAccount = "ABS-MERCHANT-001";
+        } else {
+            targetBank = "STANDARD BANK";
+            receiverPoolAccount = "SB-CLEARING-999";
+        }
 
-        return repository.save(transaction);
-    }
+        // Fix: Set the Receiver Account so it's not null
+        txn.setReceiverAccount(receiverPoolAccount);
 
-    private String determineBank(String account) {
-        if (account.startsWith("INV")) return "INVESTEC BANK";
-        else if (account.startsWith("FNB")) return "FNB BANK";
-        else if (account.startsWith("ABS")) return "ABSA BANK";
-        else return "STANDARD BANK (Default)";
+        // 4. AI Enrichment
+        // We ask Gemini to guess the category
+        String predictedCategory = aiService.categorize(txn.getReference(), txn.getAmount().toString());
+        txn.setCategory(predictedCategory);
+
+        // 5. Finalize
+        txn.setStatus("SUCCESS - Sent to " + targetBank);
+        txn.setTimestamp(LocalDateTime.now());
+
+        return repository.save(txn);
     }
 }

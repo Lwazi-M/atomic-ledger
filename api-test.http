@@ -1,11 +1,37 @@
+# -----------------------------------------------------------------------------------
+# 📮 THE API TESTER (The Digital Postcard)
+# This file lets us talk to the backend directly, skipping the website (Frontend).
+# It is useful for checking if the "Engine" works before we build the "Dashboard".
+# -----------------------------------------------------------------------------------
+
+# "###" tells the computer: "This is the start of a new request."
 ### Send a Test Payment
+
+# 1. THE ACTION (POST)
+# "POST" means: "I am SENDING new data to you."
+# "http://localhost:8080..." is the ADDRESS of our running server.
 POST http://localhost:8080/api/transactions
+
+# 2. THE HEADER (The Language)
+# We tell the server: "I am speaking in JSON format."
+# If we don't say this, the server might think we are sending a PDF or an Image.
 Content-Type: application/json
 
+# 3. THE BODY (The Message)
+# This is the actual data we want to send.
+# It must match the "Transaction.java" fields exactly!
 {
-  "reference": "TEST-PAY-001",
-  "amount": 550.00,
-  "currency": "ZAR",
-  "senderAccount": "ACC-Bob",
-  "receiverAccount": "ACC-Alice"
+  "reference": "TEST-PAY-001",   # What is this payment for?
+  "amount": 550.00,              # How much money?
+  "currency": "ZAR",             # What currency?
+  "senderAccount": "ACC-Bob",    # Who is paying?
+  "receiverAccount": "ACC-Alice" # Who is getting paid?
 }
+
+# -----------------------------------------------------------------------------------
+# 🚀 HOW TO RUN THIS:
+# 1. Make sure your App is running (Green Play Button in IntelliJ).
+# 2. Look for a tiny "Run" ▶️ icon right next to the line "POST http://..."
+# 3. Click it!
+# 4. Watch the "Services" or "Run" tab at the bottom to see the server's reply.
+# -----------------------------------------------------------------------------------

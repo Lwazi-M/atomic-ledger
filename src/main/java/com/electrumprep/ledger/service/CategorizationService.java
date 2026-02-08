@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
+import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class CategorizationService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
+    @Cacheable("categories")
     public String categorize(String reference, String amount) {
         // 2. Fix: Use the apiUrl variable properly
         String fullUrl = apiUrl + apiKey;

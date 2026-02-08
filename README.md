@@ -15,7 +15,7 @@
 
 ## 📸 Dashboard
 
-*(Add your screenshot here: `image_c34c7a.png`)*
+*![img.png](img.png)*
 *The application features a real-time dashboard that displays transaction history, status, and AI-predicted categories.*
 
 ---

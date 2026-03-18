@@ -1,0 +1,27 @@
+name: Keep-Alive Ping (Supabase & Render)
+
+on:
+  schedule:
+    # Runs at 08:00 UTC every Monday and Thursday (Twice a week)
+    - cron: '0 8 * * 1,4'
+  workflow_dispatch: # This allows you to click a button and run it manually to test it
+
+jobs:
+  ping-services:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 1. Ping Supabase Database
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          echo "Pinging Supabase to prevent inactivity pause..."
+          # ubuntu-latest comes with psql pre-installed. We run a simple SELECT 1;
+          psql "$SUPABASE_DB_URL" -c "SELECT 1;"
+          echo "Supabase ping successful!"
+
+      - name: 2. Ping Render API
+        # Replace the URL below with your actual Render API URL
+        run: |
+          echo "Pinging Render to prevent server spin-down..."
+          curl -s https://atomic-ledger.onrender.com/api/some-endpoint > /dev/null
+          echo "Render ping successful!"

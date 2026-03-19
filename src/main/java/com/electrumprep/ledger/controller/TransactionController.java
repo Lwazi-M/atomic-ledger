@@ -19,7 +19,13 @@ import java.util.List;
 
 @RestController // Tells Spring Boot: "This class is ready to receive web requests."
 @RequestMapping("/api/transactions") // The specific "Desk Address". Any URL starting with this comes here.
-@CrossOrigin(origins = "*") // SECURITY PASS: Allows "strangers" (like your frontend website) to talk to this backend.
+
+// UPDATED SECURITY PASS: Explicitly allowing your Vercel frontend and local testing.
+@CrossOrigin(origins = {
+        "https://atomic-ledger.vercel.app",
+        "http://localhost:3000",
+        "http://localhost:8080"
+})
 public class TransactionController {
 
     // 🛠️ DEPENDENCIES (The Staff)

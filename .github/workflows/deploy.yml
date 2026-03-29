@@ -1,0 +1,22 @@
+name: Deploy Atomic Ledger
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to DigitalOcean
+        uses: appleboy/ssh-action@master
+        with:
+          host: 206.189.57.159
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/portfolio-server/atomic-ledger
+            git pull origin main
+            cd ~/portfolio-server
+            docker compose up --build -d atomic-ledger-backend
+            docker system prune -f

@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.event.EventListener; // <-- NEW IMPORT
+import org.springframework.boot.context.event.ApplicationReadyEvent; // <-- NEW IMPORT
 
 import java.util.List;
 import java.util.Map;
@@ -115,6 +117,26 @@ public class CategorizationService {
             // Just log the error in the captain's log and return a safe default value.
             logger.error("AI Service Error: {}", e.getMessage());
             return "Unknown (AI Error)";
+        }
+    }
+
+    // ===================================================================================
+    // ⏰ THE ALARM CLOCK (Cold-Start Fix)
+    // ===================================================================================
+
+    // 🚀 THE WAKE-UP CALL
+    // The exact second the server finishes booting up, it triggers this method automatically.
+    // It forces the server to open a connection to Google *before* the user ever visits the app.
+    // This completely eliminates the "Unknown (AI Error)" timeout on the first real transaction.
+    @EventListener(ApplicationReadyEvent.class)
+    public void warmUpAiConnection() {
+        logger.info("☕ Waking up AI Connection in the background...");
+        try {
+            // We send a dummy transaction just to open the network pipes.
+            String response = categorize("SYSTEM_WAKEUP_PING", "0.00");
+            logger.info("✅ AI is awake and ready! (Test Result: {})", response);
+        } catch (Exception e) {
+            logger.error("⚠️ Failed to wake up AI. It might be slow on the first transaction.");
         }
     }
 

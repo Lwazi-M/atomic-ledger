@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling; // <-- NEW IMPORT ADDED HERE
 
 // -----------------------------------------------------------------------------------
 // 🚀 THE MAIN ENGINE (The Start Button)
@@ -19,6 +20,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 // This allows our AI Service to remember answers (like "KFC = Food") instantly.
 @EnableAsync           // ⚡ TURBO MODE: Turns on "Multitasking".
 // This allows the app to do heavy work in the background without freezing the screen.
+@EnableScheduling      // ⏰ THE CLOCK: Turns on background timers for our 24hr database wipe. <-- NEW ANNOTATION ADDED HERE
 public class AtomicLedgerApplication {
 
 	// 🔑 THE IGNITION KEY
